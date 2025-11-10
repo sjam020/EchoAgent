@@ -317,7 +317,13 @@
     </div>
     
     <div class="container">
-        <form id="onboardingForm">
+        <form id="onboardingForm" name="client-onboarding" method="POST" netlify netlify-honeypot="bot-field" data-netlify="true">
+            <!-- Netlify hidden fields -->
+            <input type="hidden" name="form-name" value="client-onboarding">
+            <p style="display: none;">
+                <label>Don't fill this out if you're human: <input name="bot-field" /></label>
+            </p>
+            
             <!-- Section 1: Business Information -->
             <div class="section">
                 <h2 class="section-title">
@@ -408,14 +414,11 @@ Sunday: Closed"></textarea>
                 
                 <div class="form-group">
                     <label>List Your Services with Prices & Duration <span class="required">*</span></label>
-                    <div id="servicesList" class="dynamic-list">
-                        <div class="list-item">
-                            <input type="text" placeholder="Service Name" name="serviceName[]" required>
-                            <input type="text" placeholder="Price (e.g., $75)" name="servicePrice[]" style="max-width: 120px;" required>
-                            <input type="text" placeholder="Duration (e.g., 45 min)" name="serviceDuration[]" style="max-width: 120px;" required>
-                        </div>
-                    </div>
-                    <button type="button" class="add-button" onclick="addService()">+ Add Service</button>
+                    <textarea name="services" required placeholder="Example:
+Service 1: $75 - 45 minutes
+Service 2: $120 - 1 hour
+Service 3: $50 - 30 minutes"></textarea>
+                    <div class="helper-text">List each service on a new line with format: Service Name: $Price - Duration</div>
                 </div>
             </div>
             
@@ -462,15 +465,15 @@ Sunday: Closed"></textarea>
                     <label>Appointment Confirmation Preferences</label>
                     <div class="checkbox-group">
                         <div class="checkbox-item">
-                            <input type="checkbox" id="confirmSMS" name="confirmSMS">
+                            <input type="checkbox" id="confirmSMS" name="confirmSMS" value="yes">
                             <label for="confirmSMS">Send SMS confirmation</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="confirmEmail" name="confirmEmail">
+                            <input type="checkbox" id="confirmEmail" name="confirmEmail" value="yes">
                             <label for="confirmEmail">Send email confirmation</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="reminderSMS" name="reminderSMS">
+                            <input type="checkbox" id="reminderSMS" name="reminderSMS" value="yes">
                             <label for="reminderSMS">Send SMS reminder (24 hours before)</label>
                         </div>
                     </div>
@@ -485,15 +488,16 @@ Sunday: Closed"></textarea>
                 </h2>
                 
                 <div class="form-group">
-                    <label>What are the top 10 questions customers always ask? <span class="required">*</span></label>
-                    <div class="helper-text">Please provide both the question AND the answer</div>
-                    <div id="faqList" class="dynamic-list">
-                        <div class="list-item" style="flex-direction: column; gap: 10px;">
-                            <input type="text" placeholder="Question (e.g., Do you accept walk-ins?)" name="faqQuestion[]" required>
-                            <textarea placeholder="Answer" name="faqAnswer[]" style="min-height: 60px;" required></textarea>
-                        </div>
-                    </div>
-                    <button type="button" class="add-button" onclick="addFAQ()">+ Add Question</button>
+                    <label>What are the top questions customers always ask? <span class="required">*</span></label>
+                    <div class="helper-text">Please provide both questions AND answers</div>
+                    <textarea name="faqs" required placeholder="Example:
+Q: Do you accept walk-ins?
+A: Yes, but appointments are preferred to avoid wait times.
+
+Q: What forms of payment do you accept?
+A: We accept cash, credit cards, and digital payments.
+
+(Add more Q&A pairs)"></textarea>
                 </div>
                 
                 <div class="form-group">
@@ -513,19 +517,19 @@ Sunday: Closed"></textarea>
                     <label>When should the Echo Agent transfer to a human?</label>
                     <div class="checkbox-group">
                         <div class="checkbox-item">
-                            <input type="checkbox" id="transferAngry" name="transferAngry" checked>
+                            <input type="checkbox" id="transferAngry" name="transferAngry" value="yes" checked>
                             <label for="transferAngry">Customer is upset or frustrated</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="transferComplex" name="transferComplex" checked>
+                            <input type="checkbox" id="transferComplex" name="transferComplex" value="yes" checked>
                             <label for="transferComplex">Complex questions or pricing negotiations</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="transferRequest" name="transferRequest" checked>
+                            <input type="checkbox" id="transferRequest" name="transferRequest" value="yes" checked>
                             <label for="transferRequest">Customer explicitly asks for a person</label>
                         </div>
                         <div class="checkbox-item">
-                            <input type="checkbox" id="transferVIP" name="transferVIP">
+                            <input type="checkbox" id="transferVIP" name="transferVIP" value="yes">
                             <label for="transferVIP">VIP customers or large orders</label>
                         </div>
                     </div>
@@ -593,77 +597,6 @@ Sunday: Closed"></textarea>
             const heroHeight = hero.offsetHeight;
             const opacity = Math.max(0, 1 - (scrollPosition / heroHeight) * 1.5);
             hero.style.opacity = opacity;
-        });
-        
-        function addService() {
-            const servicesList = document.getElementById('servicesList');
-            const newItem = document.createElement('div');
-            newItem.className = 'list-item';
-            newItem.innerHTML = `
-                <input type="text" placeholder="Service Name" name="serviceName[]" required>
-                <input type="text" placeholder="Price (e.g., $75)" name="servicePrice[]" style="max-width: 120px;" required>
-                <input type="text" placeholder="Duration (e.g., 45 min)" name="serviceDuration[]" style="max-width: 120px;" required>
-                <button type="button" class="remove-button" onclick="this.parentElement.remove()">✕</button>
-            `;
-            servicesList.appendChild(newItem);
-        }
-        
-        function addFAQ() {
-            const faqList = document.getElementById('faqList');
-            const newItem = document.createElement('div');
-            newItem.className = 'list-item';
-            newItem.style.flexDirection = 'column';
-            newItem.style.gap = '10px';
-            newItem.innerHTML = `
-                <input type="text" placeholder="Question" name="faqQuestion[]" required>
-                <textarea placeholder="Answer" name="faqAnswer[]" style="min-height: 60px;" required></textarea>
-                <button type="button" class="remove-button" onclick="this.parentElement.remove()" style="align-self: flex-start;">Remove</button>
-            `;
-            faqList.appendChild(newItem);
-        }
-        
-        document.getElementById('onboardingForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Collect all form data
-            const formData = new FormData(this);
-            const data = {};
-            
-            // Convert FormData to object
-            for (let [key, value] of formData.entries()) {
-                if (key.includes('[]')) {
-                    const cleanKey = key.replace('[]', '');
-                    if (!data[cleanKey]) data[cleanKey] = [];
-                    data[cleanKey].push(value);
-                } else {
-                    data[key] = value;
-                }
-            }
-            
-            // Add checkbox values
-            data.confirmSMS = document.getElementById('confirmSMS').checked;
-            data.confirmEmail = document.getElementById('confirmEmail').checked;
-            data.reminderSMS = document.getElementById('reminderSMS').checked;
-            data.transferAngry = document.getElementById('transferAngry').checked;
-            data.transferComplex = document.getElementById('transferComplex').checked;
-            data.transferRequest = document.getElementById('transferRequest').checked;
-            data.transferVIP = document.getElementById('transferVIP').checked;
-            
-            // Log the data (in production, send this to your backend/n8n)
-            console.log('Form Data:', JSON.stringify(data, null, 2));
-            
-            // Show success message
-            document.getElementById('successMessage').style.display = 'block';
-            
-            // Scroll to success message
-            document.getElementById('successMessage').scrollIntoView({ behavior: 'smooth' });
-            
-            // In production, you would send this to your n8n webhook:
-            // fetch('https://your-n8n-instance.com/webhook/client-onboarding', {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify(data)
-            // });
         });
     </script>
 </body>
